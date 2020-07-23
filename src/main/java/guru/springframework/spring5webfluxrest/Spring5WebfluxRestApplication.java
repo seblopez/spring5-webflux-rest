@@ -1,5 +1,6 @@
 package guru.springframework.spring5webfluxrest;
 
+import guru.springframework.spring5webfluxrest.domain.Vendor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
