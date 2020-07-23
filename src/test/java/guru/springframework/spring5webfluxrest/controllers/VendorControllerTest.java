@@ -1,6 +1,5 @@
 package guru.springframework.spring5webfluxrest.controllers;
 
-import guru.springframework.spring5webfluxrest.domain.Category;
 import guru.springframework.spring5webfluxrest.domain.Vendor;
 import guru.springframework.spring5webfluxrest.repositories.VendorRepository;
 import org.junit.Before;
@@ -8,12 +7,12 @@ import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 public class VendorControllerTest {
@@ -71,5 +70,38 @@ public class VendorControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Vendor.class);
+    }
+
+    @Test
+    public void createVendor() {
+        BDDMockito.given(vendorRepository.saveAll(any(Publisher.class)))
+                .willReturn(Flux.just(Vendor.builder().build()));
+
+        final Vendor vendorToCreate = Vendor.builder()
+                .firstName("Some")
+                .lastName("Name")
+                .build();
+
+        webTestClient.post()
+                .uri("/api/v1/vendors")
+                .body(Flux.just(vendorToCreate), Vendor.class)
+                .exchange()
+                .expectStatus().isCreated();
+
+    }
+
+    @Test
+    public void updateVendor() {
+        BDDMockito.given(vendorRepository.save(any(Vendor.class)))
+                .willReturn(Mono.just(Vendor.builder().build()));
+
+        Mono<Vendor> vendorToUpdateMono = Mono.just(Vendor.builder().firstName("Fabio").lastName("Posca").build());
+
+        webTestClient.put()
+                .uri("/api/v1/vendors/2343sfs3")
+                .body(vendorToUpdateMono, Vendor.class)
+                .exchange()
+                .expectStatus().isOk();
+
     }
 }
